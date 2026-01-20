@@ -1,16 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Home from "../pages/Home"
+import Login from "../pages/Login"
+import Admin from "../pages/Admin"
+import ProtectedRoute from "../auth/ProtectedRoute"
+import Posts from "../pages/Posts"
 
-function Home() {
-  return <h2 className="text-xl">Home</h2>
-}
-
-function Login() {
-  return <h2 className="text-xl">Login</h2>
-}
-
-function Admin() {
-  return <h2 className="text-xl">Admin</h2>
-}
 
 export default function AppRouter() {
   return (
@@ -18,7 +12,17 @@ export default function AppRouter() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<Admin />} />
+        <Route path="/posts" element={<Posts />} />
+
+
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute role="admin">
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   )
