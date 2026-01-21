@@ -9,10 +9,16 @@ export default function Login() {
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    login(email, password)
+  e.preventDefault()
+
+  login(email, password)
+
+  if (email === "admin@admin.com") {
+    navigate("/admin")
+  } else {
     navigate("/")
   }
+}
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
