@@ -1,18 +1,27 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../auth/AuthContext"
 
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     login(email, password)
-    navigate("/")
   }
+
+  useEffect(() => {
+    if (user) {
+      if (user.role === "admin") {
+        navigate("/admin")
+      } else {
+        navigate("/")
+      }
+    }
+  }, [user, navigate])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
