@@ -1,24 +1,27 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../auth/AuthContext"
 
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
-  e.preventDefault()
-
-  login(email, password)
-
-  if (email === "admin@admin.com") {
-    navigate("/admin")
-  } else {
-    navigate("/")
+    e.preventDefault()
+    login(email, password)
   }
-}
+
+  useEffect(() => {
+    if (user) {
+      if (user.role === "admin") {
+        navigate("/admin")
+      } else {
+        navigate("/")
+      }
+    }
+  }, [user, navigate])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -26,7 +29,9 @@ export default function Login() {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded shadow-md w-80"
       >
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">
+          Login
+        </h1>
 
         <input
           type="email"

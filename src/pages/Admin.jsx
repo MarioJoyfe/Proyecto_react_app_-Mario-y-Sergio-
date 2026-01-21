@@ -1,24 +1,42 @@
 import { useEffect, useState } from "react"
 import {
   getPosts,
-  deletePost,
+  createPost,
   updatePost,
+  deletePost,
 } from "../services/postsService"
 
 export default function Admin() {
   const [posts, setPosts] = useState([])
+  const [title, setTitle] = useState("")
+  const [body, setBody] = useState("")
   const [editingPost, setEditingPost] = useState(null)
   const [editTitle, setEditTitle] = useState("")
   const [editBody, setEditBody] = useState("")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getPosts().then(data => setPosts(data.slice(0, 10)))
+    getPosts()
+      .then((data) => {
+        setPosts(data.slice(0, 10))
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }, [])
 
-  const handleDelete = async (id) => {
-    if (!confirm("¿Seguro que quieres eliminar este post?")) return
-    await deletePost(id)
-    setPosts(posts.filter(post => post.id !== id))
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!title || !body) return
+
+    const newPost = await createPost({
+      title,
+      body,
+      userId: 1,
+    })
+
+    setPosts([newPost, ...posts])
+    setTitle("")
+    setBody("")
   }
 
   const startEdit = (post) => {
@@ -37,12 +55,22 @@ export default function Admin() {
     await updatePost(id, updatedPost)
 
     setPosts(
-      posts.map(post =>
+      posts.map((post) =>
         post.id === id ? { ...post, ...updatedPost } : post
       )
     )
 
     setEditingPost(null)
+  }
+
+  const handleDelete = async (id) => {
+    if (!confirm("¿Seguro que quieres eliminar este post?")) return
+    await deletePost(id)
+    setPosts(posts.filter((post) => post.id !== id))
+  }
+
+  if (loading) {
+    return <p className="p-6">Cargando posts...</p>
   }
 
   return (
@@ -51,20 +79,48 @@ export default function Admin() {
         Panel de Administración
       </h1>
 
+      <form
+        onSubmit={handleSubmit}
+        className="mb-8 bg-gray-100 p-4 rounded"
+      >
+        <h2 className="text-xl font-semibold mb-3">
+          Crear nuevo post
+        </h2>
+
+        <input
+          type="text"
+          placeholder="Título"
+          className="border p-2 w-full mb-3"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+
+        <textarea
+          placeholder="Contenido"
+          className="border p-2 w-full mb-3"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
+
+        <button className="bg-blue-600 text-white px-4 py-2 rounded">
+          Crear post
+        </button>
+      </form>
+
       <div className="grid gap-4">
-        {posts.map(post => (
-          <div key={post.id} className="border rounded p-4">
+        {posts.map((post) => (
+          <div key={post.id} className="border rounded p-4 bg-white">
             {editingPost === post.id ? (
               <>
                 <input
                   className="border p-2 w-full mb-2"
                   value={editTitle}
-                  onChange={e => setEditTitle(e.target.value)}
+                  onChange={(e) => setEditTitle(e.target.value)}
                 />
                 <textarea
                   className="border p-2 w-full mb-2"
                   value={editBody}
-                  onChange={e => setEditBody(e.target.value)}
+                  onChange={(e) => setEditBody(e.target.value)}
                 />
                 <button
                   onClick={() => saveEdit(post.id)}
@@ -81,7 +137,7 @@ export default function Admin() {
               </>
             ) : (
               <>
-                <h2 className="font-semibold">{post.title}</h2>
+                <h3 className="font-semibold">{post.title}</h3>
                 <p className="text-sm text-gray-600 mb-2">
                   {post.body}
                 </p>
