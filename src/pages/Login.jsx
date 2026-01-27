@@ -5,7 +5,7 @@ import { useAuth } from "../auth/AuthContext"
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = (e) => {
@@ -13,6 +13,7 @@ export default function Login() {
 
     login(email, password)
 
+    // Redirección por rol
     if (email === "admin@admin.com") {
       navigate("/admin")
     } else {
